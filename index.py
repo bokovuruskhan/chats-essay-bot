@@ -15,8 +15,8 @@ from telethon.tl.functions.channels import JoinChannelRequest
 from telethon.tl.functions.messages import ImportChatInviteRequest
 
 import admin
-from config import app, database, bot, dispatcher, api_id, api_hash, MESSAGES_COUNT, GPT_MAX_SYMBOLS, \
-    SUBSCRIBE_GROUP_ID, LOG_FILE, ENCODING, MIN_MESSAGES_COUNT
+from config import app, database, bot, dispatcher, api_id, api_hash, MESSAGES_COUNT, \
+    SUBSCRIBE_GROUP_ID, LOG_FILE, ENCODING
 from database import WebUser, save, Category, TelegramChat, get_all, find_by_id, delete, delete_all, TelegramUser, \
     ChatMessage, create_admin_user, FeedbackMessage, TelegramAccount
 from gpt import get_essay
@@ -168,16 +168,15 @@ async def gpt():
     for chat in get_all(TelegramChat):
         dialog = ""
         first_message_id = None
-        messages = ChatMessage.get_last_messages_by_chat_id(chat.id)
-        if len(messages) >= MIN_MESSAGES_COUNT:
+        messages = ChatMessage.get_unused_messages(chat.id)
+        if len(messages) >= MESSAGES_COUNT:
             for message in messages:
+
+                if first_message_id is None:
+                    first_message_id = message.id
+
                 text_message = f"{message.datetime}: {message.text}\n"
-                if len(dialog + text_message) <= GPT_MAX_SYMBOLS:
-                    if first_message_id is None:
-                        first_message_id = message.id
-                    dialog += text_message
-                else:
-                    break
+                dialog += text_message
                 message.essay_flag = False
                 save(message)
             try:
@@ -193,7 +192,7 @@ async def gpt():
             except Exception as e:
                 log(str(e), key="OpenAI")
         else:
-            log(f"messages count < {MIN_MESSAGES_COUNT}", key=f"Chat:{chat.link} ({chat.name})")
+            log(f"messages count < {MESSAGES_COUNT}", key=f"Chat:{chat.link} ({chat.name})")
 
 
 async def join_a_channel(chat_id):

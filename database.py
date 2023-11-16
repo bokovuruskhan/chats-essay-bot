@@ -98,10 +98,10 @@ class ChatMessage(database.Model):
     essay_flag = Column(Boolean(), default=True)
 
     @staticmethod
-    def get_last_messages_by_chat_id(chat_id):
+    def get_unused_messages(chat_id):
         return database.session.query(ChatMessage).filter(ChatMessage.essay_flag).filter(
             ChatMessage.chat_id == chat_id).order_by(
-            ChatMessage.datetime).limit(MESSAGES_COUNT).all()
+            ChatMessage.datetime).all()
 
     @staticmethod
     def find_by_id(message_id):
@@ -110,7 +110,8 @@ class ChatMessage(database.Model):
 
 def create_admin_user():
     if WebUser.find_by_username("admin") is None:
-        web_user = WebUser(username="admin")
+        web_user = WebUser()
+        web_user.username = "admin"
         web_user.set_password("admin")
         save(web_user)
 
