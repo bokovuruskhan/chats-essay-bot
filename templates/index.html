@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block body %}
+{% include 'modals.html' %}
+<div class="bg-light rounded mt-2 shadow p-4">
+    {% include 'navbar.html' %}
+    <nav class="shadow rounded rounded-2 breadcrumb mt-2 row p-3">
+        <div class="row">
+            <div class="col-md-5 d-flex">
+                <a href="#" class="me-2 btn btn-danger" data-bs-toggle="modal" data-bs-target="#categoriesListModal">
+                    <i class="bi bi-list"></i>
+                </a>
+            </div>
+            <div class="col-md-7">
+                <form class="d-flex" action="/category/add" method="post">
+                    <input class="form-control me-2" name="name" placeholder="Название категории" required>
+                    <button class="form-control btn btn-primary" type="submit">Добавить категорию</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <div class="shadow bg-light p-2 rounded-2 overflow-auto" style="max-height:40rem;">
+        <h4 class="text-muted"><code>Список подключенных чатов</code></h4>
+        {% for chat in chats_list %}
+        <div class="row p-2 border border-2 rounded-2 m-2">
+            <div class="col-md-4">
+                <code class="h6">
+                    {{chat.name}} <h6>({{chat.link}})</h6>
+                </code>
+            </div>
+            <div class="col-md-7">
+                <form class="d-flex" action="/chat/prompt" method="post">
+                    <input name="id" value="{{chat.id}}" hidden required>
+                    <textarea class="form-control me-2" maxlength="1000" placeholder="prompt" name="prompt" required>{{chat.prompt}}</textarea>
+                    <button class="form-control btn btn-primary" type="submit">Сохранить</button>
+                </form>
+            </div>
+            <div class="col-md-1">
+                <form class="d-flex" action="/chat/delete" method="post">
+                    <input name="id" value="{{chat.id}}" hidden required>
+                    <button class="form-control btn btn-danger" type="submit"><i class="bi bi-trash3"></i></button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <hr>
+    <form action="/chat/add" method="post">
+        <div class="row">
+            <div class="col-md-10 d-flex">
+                <input class="form-control me-2" name="link" placeholder="t.me/link" required>
+                <input class="form-control me-2" name="name" placeholder="Название" required>
+                <div class="form-control me-2">
+                    <label for="category_select">Категория:</label>
+                    <select class="form-control" id="category_select" name="category_id" required>
+                        {% for category in categories_list %}
+                        <option value="{{category.id}}">{{category.name}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="row">
+                    <div class="col-md-1">
+                        <div class="form-check  form-switch">
+                            <input name="is_private" value="True" class="form-check-input" type="checkbox" role="switch"
+                                   id="flexSwitchCheckDefault">
+                            <label class="form-check-label" for="flexSwitchCheckDefault">Приватный чат</label>
+                        </div>
+                    </div>
+                    <div class="col-md-11">
+                        <button class="form-control btn btn-primary" type="submit">Добавить чат</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </form>
+    {% if message %}
+    <div class="mt-4 alert alert-warning" role="alert">
+        {{message}}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

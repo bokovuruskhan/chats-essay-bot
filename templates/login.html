@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="bg-light rounded mt-2 shadow p-4">
+    <h1>Пожалуйста, авторизуйтесь</h1>
+    {% if message %}
+    <div class="h3 text-danger">
+        {{message}}
+    </div>
+    {% endif %}
+    <form class="form-control p-3" action="/login" method="post">
+        <div class="mb-3">
+            <input class="form-control" type="text" name="username" placeholder="Логин" required/>
+        </div>
+        <div class="mb-3">
+            <input class="form-control" type="password" name="password" placeholder="Пароль" required/>
+        </div>
+        <div class="mb-3">
+            <button class="btn btn-outline-primary" type="submit">Войти</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
